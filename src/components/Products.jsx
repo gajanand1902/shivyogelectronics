@@ -11,6 +11,21 @@ function ProductCard({ p, onOpen }) {
   const name = pick(p.nameMr, p.nameEn) || p.name
   const desc = pick(p.descMr, p.descEn) || p.desc
 
+  useEffect(() => {
+  console.log('========== FILTER DEBUG ==========')
+  console.log('ACTIVE CATEGORY:', activeCategory)
+  console.log('TOTAL PRODUCTS:', allProducts.length)
+  console.log(
+    'CATEGORIES:',
+    [...new Set(allProducts.map((p) => p.category))]
+  )
+  console.log(
+    'FILTERED PRODUCTS:',
+    filtered.length
+  )
+  console.log('==================================')
+}, [activeCategory, allProducts, filtered])
+
   
   return (
     <button
