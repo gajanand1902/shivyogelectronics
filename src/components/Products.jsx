@@ -11,21 +11,7 @@ function ProductCard({ p, onOpen }) {
   const name = pick(p.nameMr, p.nameEn) || p.name
   const desc = pick(p.descMr, p.descEn) || p.desc
 
-  useEffect(() => {
-  console.log('========== FILTER DEBUG ==========')
-  console.log('ACTIVE CATEGORY:', activeCategory)
-  console.log('TOTAL PRODUCTS:', allProducts.length)
-  console.log(
-    'CATEGORIES:',
-    [...new Set(allProducts.map((p) => p.category))]
-  )
-  console.log(
-    'FILTERED PRODUCTS:',
-    filtered.length
-  )
-  console.log('==================================')
-}, [activeCategory, allProducts, filtered])
-
+ 
   
   return (
     <button
@@ -79,28 +65,63 @@ export default function Products({ activeCategory, setActiveCategory }) {
   const [query, setQuery] = useState('')
   const [openProduct, setOpenProduct] = useState(null)
 
-  const allProducts = useMemo(() => [...adminProducts, ...products], [adminProducts])
+  const allProducts = useMemo(
+    () => [...adminProducts, ...products],
+    [adminProducts]
+  )
 
   useEffect(() => {
     if (activeCategory && activeCategory !== 'सर्व') {
-      document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })
+      document
+        .getElementById('products')
+        ?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [activeCategory])
 
   const filtered = useMemo(() => {
     return allProducts.filter((p) => {
       const name = (p.nameMr || p.nameEn || p.name || '').toLowerCase()
-      const desc = (p.descMr || p.descEn || p.desc || '')
+      const desc = p.descMr || p.descEn || p.desc || ''
+
       const matchesCategory =
-        !activeCategory || activeCategory === 'सर्व' || p.category === activeCategory
+        !activeCategory ||
+        activeCategory === 'सर्व' ||
+        String(p.category || '').trim() === String(activeCategory).trim()
+
       const matchesQuery =
         !query.trim() ||
         name.includes(query.toLowerCase()) ||
         desc.includes(query) ||
-        (p.category || '').toLowerCase().includes(query.toLowerCase())
+        String(p.category || '')
+          .toLowerCase()
+          .includes(query.toLowerCase())
+
       return matchesCategory && matchesQuery
     })
   }, [query, activeCategory, allProducts])
+
+  // 👇 DEBUG इथे
+  useEffect(() => {
+    console.log('========== FILTER DEBUG ==========')
+    console.log('ACTIVE CATEGORY:', activeCategory)
+    console.log('TOTAL PRODUCTS:', allProducts.length)
+
+    console.log(
+      'ALL CATEGORIES:',
+      [...new Set(
+        allProducts.map((p) => String(p.category || '').trim())
+      )]
+    )
+
+    console.log('FILTERED PRODUCTS:', filtered.length)
+
+    console.log(
+      'FILTERED PRODUCT NAMES:',
+      filtered.map((p) => p.nameEn || p.nameMr || p.name)
+    )
+
+    console.log('==================================')
+  }, [activeCategory, allProducts, filtered])
 
   return (
     <section id="products" className="bg-white">
